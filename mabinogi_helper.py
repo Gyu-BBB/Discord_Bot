@@ -51,6 +51,11 @@ async def calculate_command(ctx, *, arg):
     result, equation = calculate_expression_with_equation(arg)
     await ctx.send(f'계산 결과: {result}')
 
+@bot.command(name='분배')
+async def calculate_command(ctx, *, arg):
+    result, equation = calculate_expression_with_equation(arg)
+    await ctx.send(f'계산 결과: {result}')
+
 @bot.command(name='루루')
 async def lulu(ctx):
     await ctx.send('Hi!')
