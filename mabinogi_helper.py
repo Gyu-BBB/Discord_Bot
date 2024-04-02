@@ -9,6 +9,7 @@ intents = discord.Intents.default()
 # Initialize bot with intents
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
+
 def calculate_expression_with_equation(text):
     # 정규표현식을 사용하여 숫자와 연산자를 추출
     numbers = re.findall(r'\d+', text)
