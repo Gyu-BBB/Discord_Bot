@@ -44,9 +44,11 @@ async def on_ready():
 
 @bot.command(name='도움')
 async def help(ctx):
-    await ctx.send('# 명령어 \n!계산 - 분배, 크롬계산을 도와드립니다. (예시: 80 44 22 +* or 2500/4)\n')
+    await ctx.send('# 명령어 \n ## !계산 - 분배, 크롬계산을 도와드립니다.\n(예시: !계산 80 44 22 +* || !계산 2500/4)\n## !색깔 - 닉네임의 색을 변경합니다.\n(가능한 색: 빨강, 파랑, 노랑, 초록, 핑크, 보라, 검정)\n## !색깔삭제 - 자신이 가진 닉네임 색을 삭제합니다.')
 
-    # await ctx.send("!계산 - 분배, 크롬계산을 도와드립니다. (예시: 80 44 22 +* or 2500/4)")
+@bot.command(name='명령어')
+async def help(ctx):
+    await ctx.send('# 명령어 \n ## !계산 - 분배, 크롬계산을 도와드립니다.\n(예시: !계산 80 44 22 +* || !계산 2500/4)\n## !색깔 - 닉네임의 색을 변경합니다.\n(가능한 색: 빨강, 파랑, 노랑, 초록, 핑크, 보라, 검정)\n## !색깔삭제 - 자신이 가진 닉네임 색을 삭제합니다.')
 
 @bot.command(name='계산')
 async def calculate_command(ctx, *, arg):
@@ -73,7 +75,7 @@ async def premium(ctx):
 @bot.command(name='색깔')
 async def assign_color_role(ctx, *, color_name):
     # 정의된 색깔 이름을 역할 이름으로 사용
-    valid_colors = ['빨강', '파랑', '노랑', '초록', '핑크']
+    valid_colors = ['빨강', '파랑', '노랑', '초록', '핑크', '보라', '검정']
     color_name = color_name.strip()
 
     # 유효한 색깔 이름인지 확인
@@ -102,6 +104,28 @@ async def assign_color_role(ctx, *, color_name):
         await ctx.send(f'"{ctx.author.name}"님께 "{color_name}" 색깔이 부여되었습니다.')
     except Exception as e:
         await ctx.send(f'색깔을 추가하는 동안 오류가 발생했습니다: {e}')
+
+@bot.command(name='색깔삭제')
+async def remove_all_color_roles(ctx):
+    valid_colors = ['빨강', '파랑', '노랑', '초록', '핑크', '보라', '검정']
+    roles_to_remove = [discord.utils.get(ctx.guild.roles, name=color) for color in valid_colors]
+
+    # 사용자가 가진 역할 중에서 유효한 색깔 역할이 있는지 확인하고, 해당하는 모든 역할을 제거
+    removed_colors = []
+    for role in roles_to_remove:
+        if role and role in ctx.author.roles:
+            try:
+                await ctx.author.remove_roles(role)
+                removed_colors.append(role.name)
+            except Exception as e:
+                await ctx.send(f'오류가 발생했습니다: {e}')
+                return
+
+    # 삭제된 색깔 역할이 있을 경우, 삭제된 역할 목록을 사용자에게 알림
+    if removed_colors:
+        await ctx.send(f'"{ctx.author.name}"님의 색깔이 삭제되었습니다.')
+    else:
+        await ctx.send('삭제할 색깔이 없습니다.')
 
 bot.run(Token)
 
