@@ -2,7 +2,12 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 import pytz  # 시간대 처리를 위해 pytz 모듈을 사용
-from discord_bot.Discord_Bot.Token import Token
+import os
+import json
+import re
+import yaml
+import math
+from Token import Token
 
 # Define intents
 intents = discord.Intents.default()
@@ -87,11 +92,19 @@ async def on_voice_state_update(member, before, after):
 # 도움말 부르기
 @bot.command(name='도움')
 async def help(ctx):
-    await ctx.send('# 명령어 \n ## !계산 - 분배, 크롬계산을 도와드립니다.\n(예시: !계산 80 44 22 +* || !계산 2500/4)\n## !색깔 - 닉네임의 색을 변경합니다.\n(가능한 색: 빨강, 파랑, 노랑, 초록, 핑크, 보라, 검정)\n## !색깔삭제 - 자신이 가진 닉네임 색을 삭제합니다.')
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'manual.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
 @bot.command(name='명령어')
 async def help(ctx):
-    await ctx.send('# 명령어 \n ## !계산 - 분배, 크롬계산을 도와드립니다.\n(예시: !계산 80 44 22 +* || !계산 2500/4)\n## !색깔 - 닉네임의 색을 변경합니다.\n(가능한 색: 빨강, 파랑, 노랑, 초록, 핑크, 보라, 검정)\n## !색깔삭제 - 자신이 가진 닉네임 색을 삭제합니다.')
-
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'manual.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+    
 # 빅 이모티콘 
 @bot.command(name='땃지')
 async def help(ctx):
@@ -126,7 +139,6 @@ async def premium(ctx):
         await ctx.send(f'축하합니다! "{ctx.author.name}"님께 "프팩" 역할이 부여되었습니다.')
     except Exception as e:
         await ctx.send(f'역할을 추가하는 동안 오류가 발생했습니다: {e}')
-
 @bot.command(name='색깔')
 async def assign_color_role(ctx, *, color_name):
     # 정의된 색깔 이름을 역할 이름으로 사용
@@ -159,7 +171,6 @@ async def assign_color_role(ctx, *, color_name):
         await ctx.send(f'"{ctx.author.name}"님께 "{color_name}" 색깔이 부여되었습니다.')
     except Exception as e:
         await ctx.send(f'색깔을 추가하는 동안 오류가 발생했습니다: {e}')
-
 @bot.command(name='색깔삭제')
 async def remove_all_color_roles(ctx):
     valid_colors = ['빨강', '파랑', '노랑', '초록', '핑크', '보라', '검정']
@@ -181,6 +192,144 @@ async def remove_all_color_roles(ctx):
         await ctx.send(f'"{ctx.author.name}"님의 색깔이 삭제되었습니다.')
     else:
         await ctx.send('삭제할 색깔이 없습니다.')
+
+# 공략관련
+@bot.command(name='크롬')
+async def send_chrome_bath(ctx):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'Chrome_Bath.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+@bot.command(name='크롬30')
+async def send_chrome_bath(ctx):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'Chrome_Bath30.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+@bot.command(name='크롬50')
+async def send_chrome_bath(ctx):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'Chrome_Bath50.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+@bot.command(name='크롬100')
+async def send_chrome_bath(ctx):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'Chrome_Bath100.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+@bot.command(name='글렌')
+async def send_chrome_bath(ctx):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'Glenn_Bearna.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+@bot.command(name='글렌낮')
+async def send_chrome_bath(ctx):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'Glenn_Bearna_day.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+@bot.command(name='글렌밤')
+async def send_chrome_bath(ctx):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'Glenn_Bearna_night.md')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        message = file.read()
+    await ctx.send(message)
+
+
+# 염색
+def find_nearest_color(rgb_values):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'dye_converted.yaml')
+    
+    with open(file_path, 'r', encoding='utf-8') as file:
+        colors = yaml.safe_load(file)
+    
+    nearest_color_name = None
+    nearest_color_rgb = None
+    min_distance = float('inf')
+    
+    for color in colors:
+        distance = math.sqrt(sum((c1 - c2) ** 2 for c1, c2 in zip(rgb_values, color['rgb'])))
+        if distance < min_distance:
+            min_distance = distance
+            nearest_color_name = color['name']
+            nearest_color_rgb = color['rgb']
+    
+    return nearest_color_name, nearest_color_rgb
+
+# 색상 이름으로 RGB 값을 찾는 함수
+def find_rgb_by_name(color_name):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'dye_converted.yaml')
+    
+    with open(file_path, 'r', encoding='utf-8') as file:
+        colors = yaml.safe_load(file)
+    
+    for color in colors:
+        if color['name'] == color_name:
+            return color['rgb']
+    return None
+
+def find_rgb(rgb_values):
+    """Find the color name corresponding to the given RGB values."""
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', 'dye_converted.yaml')
+
+    with open(file_path, 'r', encoding='utf-8') as file:
+        colors = yaml.safe_load(file)
+    
+    for color in colors:
+        if color['rgb'] == rgb_values:
+            return color['name']
+    
+    return None
+
+@bot.command()
+async def 지염(ctx, *args):
+    if not args:
+        await ctx.send("색상 이름 또는 RGB 값을 입력해주세요. 예) !지염 리화 또는 !지염 255,255,255")
+        return
+
+    input_str = " ".join(args)
+    # RGB 값으로 추정되는 입력을 처리합니다.
+    if all(char.isdigit() or char in [',', ' '] for char in input_str):
+        # 입력에서 모든 숫자를 찾아 RGB 값으로 변환합니다.
+        rgb_values = [int(val) for val in re.findall(r'\d+', input_str)]
+
+        if len(rgb_values) == 3 and all(0 <= val <= 255 for val in rgb_values):
+            # 먼저 정확히 일치하는 색상을 찾습니다.
+            exact_match_name = find_rgb(rgb_values)
+            if exact_match_name:
+                await ctx.send(f'해당 RGB 값 ({",".join(map(str, rgb_values))})에 대한 색상 이름은 "{exact_match_name}"입니다.')
+                return
+            
+            # 정확히 일치하는 색상이 없는 경우, 가장 가까운 색상을 찾습니다.
+            nearest_color_name, nearest_rgb = find_nearest_color(rgb_values)
+            if nearest_color_name:
+                await ctx.send(f'해당 RGB 값 ({",".join(map(str, rgb_values))})과 일치하는 색상이 없습니다.\n해당값과 가장 비슷한 색상은 {nearest_color_name}({",".join(map(str, nearest_rgb))})입니다.')
+            else:
+                await ctx.send("가장 비슷한 색상을 찾을 수 없습니다.")
+        else:
+            await ctx.send("올바른 RGB 형식으로 입력해주세요. 예) !지염 255,255,255")
+    else:
+        # 색상 이름으로 간주하고 RGB 값을 찾습니다.
+        rgb_values = find_rgb_by_name(input_str)
+        if rgb_values:
+            await ctx.send(f'{input_str}에 일치하는 RGB값은 ({",".join(map(str, rgb_values))})입니다.')
+        else:
+            await ctx.send(f'{input_str}에 일치하는 색상이 없습니다.')
+
+
+
 
 bot.run(Token)
 
