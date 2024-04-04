@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 import pytz  # 시간대 처리를 위해 pytz 모듈을 사용
-from Token import Token
+from discord_bot.Discord_Bot.Token import Token
 
 # Define intents
 intents = discord.Intents.default()
