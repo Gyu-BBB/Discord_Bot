@@ -104,7 +104,7 @@ async def help(ctx):
     with open(file_path, 'r', encoding='utf-8') as file:
         message = file.read()
     await ctx.send(message)
-    
+
 # 빅 이모티콘 
 @bot.command(name='땃지')
 async def help(ctx):
@@ -300,19 +300,15 @@ async def 지염(ctx, *args):
         return
 
     input_str = " ".join(args)
-    # RGB 값으로 추정되는 입력을 처리합니다.
     if all(char.isdigit() or char in [',', ' '] for char in input_str):
-        # 입력에서 모든 숫자를 찾아 RGB 값으로 변환합니다.
         rgb_values = [int(val) for val in re.findall(r'\d+', input_str)]
 
         if len(rgb_values) == 3 and all(0 <= val <= 255 for val in rgb_values):
-            # 먼저 정확히 일치하는 색상을 찾습니다.
             exact_match_name = find_rgb(rgb_values)
             if exact_match_name:
                 await ctx.send(f'해당 RGB 값 ({",".join(map(str, rgb_values))})에 대한 색상 이름은 "{exact_match_name}"입니다.')
                 return
             
-            # 정확히 일치하는 색상이 없는 경우, 가장 가까운 색상을 찾습니다.
             nearest_color_name, nearest_rgb = find_nearest_color(rgb_values)
             if nearest_color_name:
                 await ctx.send(f'해당 RGB 값 ({",".join(map(str, rgb_values))})과 일치하는 색상이 없습니다.\n해당값과 가장 비슷한 색상은 {nearest_color_name}({",".join(map(str, nearest_rgb))})입니다.')
@@ -321,15 +317,11 @@ async def 지염(ctx, *args):
         else:
             await ctx.send("올바른 RGB 형식으로 입력해주세요. 예) !지염 255,255,255")
     else:
-        # 색상 이름으로 간주하고 RGB 값을 찾습니다.
         rgb_values = find_rgb_by_name(input_str)
         if rgb_values:
             await ctx.send(f'{input_str}에 일치하는 RGB값은 ({",".join(map(str, rgb_values))})입니다.')
         else:
             await ctx.send(f'{input_str}에 일치하는 색상이 없습니다.')
-
-
-
 
 bot.run(Token)
 
