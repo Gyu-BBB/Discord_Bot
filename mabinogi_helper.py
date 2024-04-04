@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 import pytz  # 시간대 처리를 위해 pytz 모듈을 사용
-from discord_bot.Token import Token
+from Token import Token
 
 # Define intents
 intents = discord.Intents.default()
@@ -55,6 +55,7 @@ def calculate_expression_with_equation(text):
 async def on_ready():
     print(f'Logged in as: {bot.user}')
 
+# 음성채팅방 입퇴장 알림
 @bot.event
 async def on_voice_state_update(member, before, after):
     # print(f"Voice state updated for {member}: {before.channel} -> {after.channel}")
@@ -72,7 +73,7 @@ async def on_voice_state_update(member, before, after):
     elif before.channel is not None and after.channel is None:
         channel_name = voice_channel_ids.get(str(before.channel.id))
         if channel_name and channel:  # 채널 이름이 매핑에 있고, 텍스트 채널이 유효한 경우
-            await channel.send(f"({current_time}) '{member.display_name}'님이 '{channel_name}'에서 퇴장했습니다. ({current_time})")
+            await channel.send(f"'{member.display_name}'님이 '{channel_name}'에서 퇴장했습니다. ({current_time})")
     # 사용자가 음성 채널을 변경한 경우
     elif before.channel is not None and after.channel is not None:
         before_channel_name = voice_channel_ids.get(str(before.channel.id))
@@ -83,21 +84,33 @@ async def on_voice_state_update(member, before, after):
             else:
                 await channel.send(f"'{member.display_name}'님이 '{before_channel_name}' > '{after_channel_name}'으로 옮기셨습니다. ({current_time})")
 
-
+# 도움말 부르기
 @bot.command(name='도움')
 async def help(ctx):
     await ctx.send('# 명령어 \n ## !계산 - 분배, 크롬계산을 도와드립니다.\n(예시: !계산 80 44 22 +* || !계산 2500/4)\n## !색깔 - 닉네임의 색을 변경합니다.\n(가능한 색: 빨강, 파랑, 노랑, 초록, 핑크, 보라, 검정)\n## !색깔삭제 - 자신이 가진 닉네임 색을 삭제합니다.')
-
 @bot.command(name='명령어')
 async def help(ctx):
     await ctx.send('# 명령어 \n ## !계산 - 분배, 크롬계산을 도와드립니다.\n(예시: !계산 80 44 22 +* || !계산 2500/4)\n## !색깔 - 닉네임의 색을 변경합니다.\n(가능한 색: 빨강, 파랑, 노랑, 초록, 핑크, 보라, 검정)\n## !색깔삭제 - 자신이 가진 닉네임 색을 삭제합니다.')
 
+# 빅 이모티콘 
+@bot.command(name='땃지')
+async def help(ctx):
+    await ctx.send('https://cdn.discordapp.com/emojis/1209645978140020747.webp?size=240&quality=lossless')
+@bot.command(name='뚯지')
+async def help(ctx):
+    await ctx.send('https://cdn.discordapp.com/emojis/1209645978140020747.webp?size=240&quality=lossless')
+
+# 계산기
 @bot.command(name='계산')
 async def calculate_command(ctx, *, arg):
     result, equation = calculate_expression_with_equation(arg)
     await ctx.send(f'계산 결과: {result}')
+@bot.command(name='분배')
+async def calculate_command(ctx, *, arg):
+    result, equation = calculate_expression_with_equation(arg)
+    await ctx.send(f'계산 결과: {result}')
 
-
+# 역할관련
 @bot.command(name='프팩')
 async def premium(ctx):
     # '프팩' 역할 찾기
