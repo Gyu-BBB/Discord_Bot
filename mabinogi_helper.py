@@ -1,14 +1,26 @@
 import discord
 from discord.ext import commands
-import re
-from Token import Token
+from datetime import datetime
+import pytz  # 시간대 처리를 위해 pytz 모듈을 사용
+from discord_bot.Token import Token
 
 # Define intents
 intents = discord.Intents.default()
+# intents.guild_voice_states = True  # 음성 상태 변경 인텐트 활성화
 
 # Initialize bot with intents
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
+# 음성 채널 ID와 이름 매핑
+voice_channel_ids = {
+    "1202655269818204180": "전망대",
+    "1202655302890160178": "땃지",
+    "1202655087202271232": "노는방",
+    "1202655142395121675": "지하감옥",
+}
+
+# 입장 메시지를 나타낼 채팅방의 ID
+text_channel_id = 1225476401889804379
 
 def calculate_expression_with_equation(text):
     # 정규표현식을 사용하여 숫자와 연산자를 추출
@@ -42,6 +54,35 @@ def calculate_expression_with_equation(text):
 @bot.event
 async def on_ready():
     print(f'Logged in as: {bot.user}')
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    # print(f"Voice state updated for {member}: {before.channel} -> {after.channel}")
+
+    tz = pytz.timezone('Asia/Seoul')
+    current_time = datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
+
+    channel = bot.get_channel(text_channel_id)
+    # 사용자가 음성 채널에 입장한 경우
+    if before.channel is None and after.channel is not None:
+        channel_name = voice_channel_ids.get(str(after.channel.id))
+        if channel_name and channel:  # 채널 이름이 매핑에 있고, 텍스트 채널이 유효한 경우
+            await channel.send(f"'{member.display_name}'님이 '{channel_name}'에 입장했습니다. ({current_time})")
+    # 사용자가 음성 채널에서 퇴장한 경우
+    elif before.channel is not None and after.channel is None:
+        channel_name = voice_channel_ids.get(str(before.channel.id))
+        if channel_name and channel:  # 채널 이름이 매핑에 있고, 텍스트 채널이 유효한 경우
+            await channel.send(f"({current_time}) '{member.display_name}'님이 '{channel_name}'에서 퇴장했습니다. ({current_time})")
+    # 사용자가 음성 채널을 변경한 경우
+    elif before.channel is not None and after.channel is not None:
+        before_channel_name = voice_channel_ids.get(str(before.channel.id))
+        after_channel_name = voice_channel_ids.get(str(after.channel.id))
+        if before_channel_name and after_channel_name and channel:
+            if before_channel_name == after_channel_name:
+                pass
+            else:
+                await channel.send(f"'{member.display_name}'님이 '{before_channel_name}' > '{after_channel_name}'으로 옮기셨습니다. ({current_time})")
+
 
 @bot.command(name='도움')
 async def help(ctx):
