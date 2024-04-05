@@ -40,3 +40,10 @@ Mabinogi_Helper_Bot
 - 크롬공략을 나타내줍니다.
 (예시: !크롬, !크롬30, !크롬50, !크롬100)
 ![스크린샷 2024-04-05 173415](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/bd427053-51fe-41bd-b36b-0dd3a839490c)
+
+## !베테랑
+- 오늘의 베테랑던전을 알려줍니다.
+(예시: !베테랑, !오테랑, !오늘의베테랑)
+![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/e8a03a44-910f-4608-a9ac-72533e457424)
+
+
