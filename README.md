@@ -43,7 +43,7 @@ Mabinogi_Helper_Bot
 
 ## !베테랑
 - 오늘의 베테랑던전을 알려줍니다.
-(예시: !베테랑, !오테랑, !오늘의베테랑)
+(예시: !베테랑, !오테랑, !오늘의베테랑)  
 ![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/e8a03a44-910f-4608-a9ac-72533e457424)
 
 
