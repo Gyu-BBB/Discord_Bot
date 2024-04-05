@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz  # 시간대 처리를 위해 pytz 모듈을 사용
 import os
 import json
@@ -55,6 +55,12 @@ def calculate_expression_with_equation(text):
     result = eval(equation)
     
     return result, equation
+
+# data파일 절대경로 설정
+def get_datafile_path(file_name):
+    directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(directory, 'data', file_name)
+    return file_path
 
 @bot.event
 async def on_ready():
@@ -245,10 +251,52 @@ async def send_chrome_bath(ctx):
     await ctx.send(message)
 
 
+
+# 오늘의 베테랑 찾기
+# 베테랑 데이터 로드
+def load_veteran_data():
+    file_path = get_datafile_path('veteran_dungeon.yaml')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = yaml.safe_load(file)
+        for item in data:
+            if '베테랑' in item:
+                return item['베테랑']
+    return [] 
+# 오늘의 베테랑 선택
+def select_veteran_for_today(veterans_list):
+    start_date = datetime(2024, 4, 5)
+    now = datetime.now()
+    
+    if now.hour < 7:
+        today = now.date() - timedelta(days=1)
+    else:
+        today = now.date()
+    
+    delta = (today - start_date.date()).days
+    
+    index = delta % len(veterans_list)
+    return veterans_list[index]
+
+@bot.command()
+async def 오테랑(ctx):
+    veterans = load_veteran_data()
+    today_veteran = select_veteran_for_today(veterans)
+    await ctx.send(f'오늘의 베테랑 던전은 "{today_veteran}던전" 입니다.')
+@bot.command()
+async def 베테랑(ctx):
+    veterans = load_veteran_data()
+    today_veteran = select_veteran_for_today(veterans)
+    await ctx.send(f'오늘의 베테랑 던전은 "{today_veteran}던전" 입니다.')
+@bot.command()
+async def 오늘의베테랑(ctx):
+    veterans = load_veteran_data()
+    today_veteran = select_veteran_for_today(veterans)
+    await ctx.send(f'오늘의 베테랑 던전은 "{today_veteran}던전" 입니다.')
+# 베테랑 : [페카, 알비, 키아, 라비, 마스, 피오드, 바리, 코일, 룬다]
+
 # 염색
 def find_nearest_color(rgb_values):
-    directory = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(directory, 'data', 'dye_converted.yaml')
+    file_path = get_datafile_path('dye_converted.yaml')
     
     with open(file_path, 'r', encoding='utf-8') as file:
         colors = yaml.safe_load(file)
@@ -268,8 +316,7 @@ def find_nearest_color(rgb_values):
 
 # 색상 이름으로 RGB 값을 찾는 함수
 def find_rgb_by_name(color_name):
-    directory = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(directory, 'data', 'dye_converted.yaml')
+    file_path = get_datafile_path('dye_converted.yaml')
     
     with open(file_path, 'r', encoding='utf-8') as file:
         colors = yaml.safe_load(file)
@@ -281,8 +328,7 @@ def find_rgb_by_name(color_name):
 
 def find_rgb(rgb_values):
     """Find the color name corresponding to the given RGB values."""
-    directory = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(directory, 'data', 'dye_converted.yaml')
+    file_path = get_datafile_path('dye_converted.yaml')
 
     with open(file_path, 'r', encoding='utf-8') as file:
         colors = yaml.safe_load(file)
