@@ -7,6 +7,7 @@ import json
 import re
 import yaml
 import math
+from discord import File
 from Token import Token
 
 # Define intents
@@ -314,6 +315,18 @@ def find_nearest_color(rgb_values):
     
     return nearest_color_name, nearest_color_rgb
 
+async def send_color_image(ctx, rgb):
+    """해당 RGB 값을 가진 이미지 파일을 디스코드 채널에 전송합니다."""
+    # 이미지 파일 이름을 "r,g,b.png" 형식으로 생성
+    image_file_name = f"{rgb[0]},{rgb[1]},{rgb[2]}.png"
+    # get_datafile_path 함수를 사용해 파일의 절대 경로를 구성
+    file_path = get_datafile_path(os.path.join('color', image_file_name))
+    
+    if os.path.exists(file_path):
+        await ctx.send(file=File(file_path))
+    else:
+        await ctx.send("해당 RGB 값에 맞는 이미지 파일이 없습니다.")
+
 # 색상 이름으로 RGB 값을 찾는 함수
 def find_rgb_by_name(color_name):
     file_path = get_datafile_path('dye_converted.yaml')
@@ -341,10 +354,8 @@ def find_rgb(rgb_values):
 
 @bot.command()
 async def 지염(ctx, *args):
-    if not args:
-        await ctx.send("색상 이름 또는 RGB 값을 입력해주세요. 예) !지염 리화 또는 !지염 255,255,255")
-        return
-
+    # 기존 코드는 유지하고, 마지막에 이미지 전송 부분을 추가합니다.
+    
     input_str = " ".join(args)
     if all(char.isdigit() or char in [',', ' '] for char in input_str):
         rgb_values = [int(val) for val in re.findall(r'\d+', input_str)]
@@ -353,11 +364,14 @@ async def 지염(ctx, *args):
             exact_match_name = find_rgb(rgb_values)
             if exact_match_name:
                 await ctx.send(f'해당 RGB 값 ({",".join(map(str, rgb_values))})에 대한 색상 이름은 "{exact_match_name}"입니다.')
+                await send_color_image(ctx, rgb_values)
                 return
             
             nearest_color_name, nearest_rgb = find_nearest_color(rgb_values)
             if nearest_color_name:
                 await ctx.send(f'해당 RGB 값 ({",".join(map(str, rgb_values))})과 일치하는 색상이 없습니다.\n해당값과 가장 비슷한 색상은 {nearest_color_name}({",".join(map(str, nearest_rgb))})입니다.')
+                await send_color_image(ctx, rgb_values)
+                await send_color_image(ctx, nearest_rgb)
             else:
                 await ctx.send("가장 비슷한 색상을 찾을 수 없습니다.")
         else:
@@ -366,6 +380,7 @@ async def 지염(ctx, *args):
         rgb_values = find_rgb_by_name(input_str)
         if rgb_values:
             await ctx.send(f'{input_str}에 일치하는 RGB값은 ({",".join(map(str, rgb_values))})입니다.')
+            await send_color_image(ctx, rgb_values)
         else:
             await ctx.send(f'{input_str}에 일치하는 색상이 없습니다.')
 
