@@ -320,7 +320,7 @@ async def send_color_image(ctx, rgb):
     # 이미지 파일 이름을 "r,g,b.png" 형식으로 생성
     image_file_name = f"{rgb[0]},{rgb[1]},{rgb[2]}.png"
     # get_datafile_path 함수를 사용해 파일의 절대 경로를 구성
-    file_path = get_datafile_path(os.path.join('color', image_file_name))
+    file_path = get_datafile_path(os.path.join('colors', image_file_name))
     
     if os.path.exists(file_path):
         await ctx.send(file=File(file_path))
