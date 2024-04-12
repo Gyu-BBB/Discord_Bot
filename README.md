@@ -24,7 +24,7 @@ Mabinogi_Helper_Bot
 ## !지염 
 - 원하는 지염의 색을 찾아줍니다.
 (예시: !지염 0,0,0 or !지염 코즈믹시암)  
-![스크린샷 2024-04-05 173448](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/9f1a93e7-759c-4199-ae8c-ea83c402ae93)
+![alt text](image.png)
 
 ## !글렌
 - 글렌공략을 나타내줍니다.
