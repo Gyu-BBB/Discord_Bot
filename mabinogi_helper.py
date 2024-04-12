@@ -9,6 +9,7 @@ import yaml
 import math
 from discord import File
 from Token import Token
+from datetime import date
 
 # Define intents
 intents = discord.Intents.default()
@@ -384,5 +385,126 @@ async def 지염(ctx, *args):
         else:
             await ctx.send(f'{input_str}에 일치하는 색상이 없습니다.')
 
-bot.run(Token)
 
+@bot.command(name='경매장쿠폰최신화')
+async def modify_coupon_command(ctx, price_10:int=None, price_20:int=None, price_30:int=None, price_50:int=None, price_100:int=None):
+    #!빠진 입력이 있는 경우
+    if price_10 is None or price_20 is None or price_30 is None or price_50 is None or price_100 is None:
+        message = "다음과 같은 형식으로 기입해주세요. \n"
+        message += "!경매장쿠폰최신화 [10%쿠폰비용(숫자)] [20%쿠폰비용(숫자)] [30%쿠폰비용(숫자)] [50%쿠폰비용(숫자)] [100%쿠폰비용(숫자)]\n"
+        message += "예) !경매장할인쿠폰최신화 11500 65000 390000 19999999 29230000"
+        await ctx.send(message)
+    pdate_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100 = modify_coupon_price(price_10, price_20, price_30, price_50, price_100)
+    message = f"====================\n"
+    message += f"쿠폰 가격 기준 갱신\n"
+    message += f" 10% 할인쿠폰 : {coupon_10:,}\n"
+    message += f" 20% 할인쿠폰 : {coupon_20:,}\n"
+    message += f" 30% 할인쿠폰 : {coupon_30:,}\n"
+    message += f" 50% 할인쿠폰 : {coupon_50:,}\n"
+    message += f"100% 할인쿠폰 : {coupon_100:,}\n"
+    message += f"*updated by {update_date}*\n"
+    message += f"====================\n"
+    message += f"으로 갱신 완료되었습니다."
+    await ctx.send(message)
+
+@bot.command(name='경매장')
+async def auction_command(ctx, price:int=None, premium:str=None):    
+    #!경매장 만 입력한경우
+    if price is None or premium is None:
+        # 누락된 인자가 있을 시 사용자에게 양식 제공
+        message = "다음과 같은 형식으로 기입해주세요. \n"
+        message += "!경매장 [판매가(숫자)] [프리미엄멤버십 또는 프리시즌 여부(y/n)]\n"
+        message += "예) !경매장 5000000 y"
+        await ctx.send(message)
+    
+    result, sales_commission,sales_commission_percent, discount_10, discount_20, discount_30, discount_50, discount_100 = calculate_auction(price, premium)
+    
+    update_date, coupon_10,coupon_20,coupon_30,coupon_50,coupon_100 = coupon_price()
+    
+    auction_dic = {'10%':discount_10-coupon_10, 
+                   '20%':discount_20-coupon_20, 
+                   '30%':discount_30-coupon_30,
+                   '50%':discount_50-coupon_50, 
+                   '100%':discount_100-coupon_100}
+    
+    #최고 효율을 내는 값 찾기
+    max_profit_key = max(auction_dic, key=auction_dic.get)
+    max_profit_value = auction_dic[max_profit_key]
+    
+    message = f"판매가: {price:,.0f}\n"
+    message += f"적용 수수료율: {sales_commission_percent*100}%"
+    if sales_commission_percent == 0.04 :
+        message += f"(프리미엄 멤버십 적용)"
+    else :
+        message += f"(프리미엄 멤버십 미적용)"
+    message += f"\n"
+    message += f"수수료: {sales_commission:,.0f}\n"
+    message += f"수령 금액: {result:,.0f}\n\n"
+    
+    message += f"====================\n"
+    message += f"사용된 쿠폰 가격 기준\n"
+    message += f" 10% 할인쿠폰 : {coupon_10:,}\n"
+    message += f" 20% 할인쿠폰 : {coupon_20:,}\n"
+    message += f" 30% 할인쿠폰 : {coupon_30:,}\n"
+    message += f" 50% 할인쿠폰 : {coupon_50:,}\n"
+    message += f"100% 할인쿠폰 : {coupon_100:,}\n"
+    message += f"*updated by {update_date}*\n"
+    message += f"====================\n"
+    message += f"**주의** : 쿠폰비용에 오차가 큰 경우 아래 방법으로 비용을 최신화 해주세요.❗\n"
+    message += f"예) !경매장쿠폰최신화 [10%가격] [20%가격] [30%가격] [50%가격] [100%가격]\n\n"
+
+    message += "할인쿠폰 사용 시 얻게 될 금액(할인된 금액 - 쿠폰비용)\n\n"
+    message += f"10% : {auction_dic['10%']:,.0f}\n"
+    message += f"20% : {auction_dic['20%']:,.0f}\n"
+    message += f"30% : {auction_dic['30%']:,.0f}\n"
+    message += f"50% : {auction_dic['50%']:,.0f}\n"
+    message += f"100%: {auction_dic['100%']:,.0f}\n"
+    if max_profit_value > 0 :
+        message += f"**💡최고 효율을 내는 수수료할인쿠폰은 [{max_profit_key}할인쿠폰] 입니다.💡**"
+    else :
+        message += f"**💡경매장 수수료할인쿠폰을 사용하지 않는 것이 좋습니다.💡**"
+    await ctx.send(message)
+
+def calculate_auction(price, premium):
+    # 프리미엄 여부에 따라 수수료율 결정
+    sales_commission_percent = 0.04 if premium.lower() == 'y' else 0.05
+    # 판매수수료 계산
+    sales_commission = int(price * sales_commission_percent)
+    #수수료 할인쿠폰 없이 수령할 금액
+    result = price - sales_commission
+    
+    # 수수료 할인쿠폰 계산
+    discount_10 = sales_commission * 0.1
+    discount_20 = sales_commission * 0.2
+    discount_30 = sales_commission * 0.3
+    discount_50 = sales_commission * 0.5
+    discount_100 = sales_commission * 1
+
+    
+    return result, sales_commission, sales_commission_percent, discount_10, discount_20, discount_30, discount_50, discount_100
+
+def coupon_price():
+  return update_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100
+
+update_date = "2024-03-01"
+coupon_10 = 11500
+coupon_20 = 65000
+coupon_30 = 390000
+coupon_50 = 20000000
+coupon_100 = 29230000
+
+#쿠폰값 업데이트
+def modify_coupon_price(modify_10,modify_20,modify_30,modify_50,modify_100):
+    global update_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100
+    update_date = date.today()
+    coupon_10 = modify_10
+    coupon_20 = modify_20
+    coupon_30 = modify_30
+    coupon_50 = modify_50
+    coupon_100 = modify_100
+    return update_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100
+
+
+
+
+bot.run(Token)
