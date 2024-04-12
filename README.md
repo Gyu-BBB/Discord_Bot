@@ -58,3 +58,9 @@ Mabinogi_Helper_Bot
 
 (예시: !경매장 10000000 y, !경매장 10000000 n)
 ![alt text](image.png)
+
+## !어드
+- 오늘의 어드벤스드 아이템을 알려줍니다. 
+
+(예시: !어드, !어드전체, !전체어드)
+![alt text](image.png)

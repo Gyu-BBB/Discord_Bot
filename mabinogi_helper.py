@@ -525,7 +525,6 @@ def modify_coupon_price(modify_10, modify_20, modify_30, modify_50, modify_100):
     save_coupon_prices_to_yaml()
     return update_date, coupon_10, coupon_20, coupon_30, coupon_50, coupon_100
 
-
 def save_coupon_prices_to_yaml():
     coupon_data = {
         'update_date': update_date,
@@ -537,4 +536,48 @@ def save_coupon_prices_to_yaml():
     }
     with open(get_datafile_path('Discount_Ticket_Price.yaml'), 'w') as file:
         yaml.safe_dump(coupon_data, file)
+
+# 현재 요일을 확인하는 함수
+def get_current_day():
+    days = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
+    today = datetime.now(pytz.timezone('Asia/Seoul')).weekday()
+    return days[today]
+
+# 어드템 확인
+@bot.command()
+async def 어드(ctx):
+    current_day = get_current_day()
+    data_file = get_datafile_path("Advanced_Item.yaml")
+    with open(data_file, 'r', encoding='utf-8') as file:
+        schedule = yaml.safe_load(file)
+        if current_day in schedule:
+            content = "\n".join(schedule[current_day])
+            await ctx.send(f"## 오늘의 어드벤스드 아이템\n{content}")
+        else:
+            await ctx.send(f"제대로 입력해")
+
+@bot.command()
+async def 어드전체(ctx):
+    data_file = get_datafile_path("Advanced_Item.yaml")
+    with open(data_file, 'r', encoding='utf-8') as file:
+        schedule = yaml.safe_load(file)
+        message = []
+        for day, items in schedule.items():
+            day_items = f"{day}\n" + "\n".join(items)
+            message.append(day_items)
+        formatted_message = "```" + "\n\n".join(message) + "```"
+        await ctx.send(formatted_message)
+
+@bot.command()
+async def 전체어드(ctx):
+    data_file = get_datafile_path("Advanced_Item.yaml")
+    with open(data_file, 'r', encoding='utf-8') as file:
+        schedule = yaml.safe_load(file)
+        message = []
+        for day, items in schedule.items():
+            day_items = f"{day}\n" + "\n".join(items)
+            message.append(day_items)
+        formatted_message = "```" + "\n\n".join(message) + "```"
+        await ctx.send(formatted_message)
+
 bot.run(Token)
