@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from datetime import datetime, timedelta
-import pytz  # 시간대 처리를 위해 pytz 모듈을 사용
+import pytz  
 import os
 import json
 import re
@@ -391,19 +391,19 @@ async def modify_coupon_command(ctx, price_10:int=None, price_20:int=None, price
     if price_10 is None or price_20 is None or price_30 is None or price_50 is None or price_100 is None:
         message = "다음과 같은 형식으로 기입해주세요. \n"
         message += "!경매장쿠폰최신화 [10%쿠폰비용(숫자)] [20%쿠폰비용(숫자)] [30%쿠폰비용(숫자)] [50%쿠폰비용(숫자)] [100%쿠폰비용(숫자)]\n"
-        message += "예) !경매장할인쿠폰최신화 11500 65000 390000 19999999 29230000"
+        message += "예) !경매장쿠폰최신화 11500 65000 390000 19999999 29230000"
         await ctx.send(message)
     pdate_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100 = modify_coupon_price(price_10, price_20, price_30, price_50, price_100)
-    message = f"====================\n"
-    message += f"쿠폰 가격 기준 갱신\n"
+    # message = f"====================\n"
+    message = f" 쿠폰 가격 갱신\n"
     message += f" 10% 할인쿠폰 : {coupon_10:,}\n"
     message += f" 20% 할인쿠폰 : {coupon_20:,}\n"
     message += f" 30% 할인쿠폰 : {coupon_30:,}\n"
     message += f" 50% 할인쿠폰 : {coupon_50:,}\n"
     message += f"100% 할인쿠폰 : {coupon_100:,}\n"
-    message += f"*updated by {update_date}*\n"
-    message += f"====================\n"
-    message += f"으로 갱신 완료되었습니다."
+    message += f"*updated by {update_date}*\n\n"
+    # message += f"====================\n"
+    message += f"갱신 완료되었습니다."
     await ctx.send(message)
 
 @bot.command(name='경매장')
@@ -418,13 +418,22 @@ async def auction_command(ctx, price:int=None, premium:str=None):
     
     result, sales_commission,sales_commission_percent, discount_10, discount_20, discount_30, discount_50, discount_100 = calculate_auction(price, premium)
     
-    update_date, coupon_10,coupon_20,coupon_30,coupon_50,coupon_100 = coupon_price()
+    global update_date, coupon_10, coupon_20, coupon_30, coupon_50, coupon_100
+    load_coupon_prices_from_yaml() 
+
     
     auction_dic = {'10%':discount_10-coupon_10, 
                    '20%':discount_20-coupon_20, 
                    '30%':discount_30-coupon_30,
                    '50%':discount_50-coupon_50, 
                    '100%':discount_100-coupon_100}
+                   
+    actual_received_amount = {'10%':result-(discount_10+coupon_10),
+                              '20%':result-(discount_20+coupon_20), 
+                              '30%':result-(discount_30+coupon_30),
+                              '50%':result-(discount_50+coupon_50), 
+                              '100%':result-(discount_100+coupon_100)}
+
     
     #최고 효율을 내는 값 찾기
     max_profit_key = max(auction_dic, key=auction_dic.get)
@@ -433,35 +442,37 @@ async def auction_command(ctx, price:int=None, premium:str=None):
     message = f"판매가: {price:,.0f}\n"
     message += f"적용 수수료율: {sales_commission_percent*100}%"
     if sales_commission_percent == 0.04 :
-        message += f"(프리미엄 멤버십 적용)"
+        message += f" (프리미엄 멤버십 적용)"
     else :
-        message += f"(프리미엄 멤버십 미적용)"
+        message += f" (프리미엄 멤버십 미적용)"
     message += f"\n"
     message += f"수수료: {sales_commission:,.0f}\n"
     message += f"수령 금액: {result:,.0f}\n\n"
     
-    message += f"====================\n"
-    message += f"사용된 쿠폰 가격 기준\n"
-    message += f" 10% 할인쿠폰 : {coupon_10:,}\n"
-    message += f" 20% 할인쿠폰 : {coupon_20:,}\n"
-    message += f" 30% 할인쿠폰 : {coupon_30:,}\n"
-    message += f" 50% 할인쿠폰 : {coupon_50:,}\n"
-    message += f"100% 할인쿠폰 : {coupon_100:,}\n"
-    message += f"*updated by {update_date}*\n"
-    message += f"====================\n"
-    message += f"**주의** : 쿠폰비용에 오차가 큰 경우 아래 방법으로 비용을 최신화 해주세요.❗\n"
-    message += f"예) !경매장쿠폰최신화 [10%가격] [20%가격] [30%가격] [50%가격] [100%가격]\n\n"
-
-    message += "할인쿠폰 사용 시 얻게 될 금액(할인된 금액 - 쿠폰비용)\n\n"
-    message += f"10% : {auction_dic['10%']:,.0f}\n"
-    message += f"20% : {auction_dic['20%']:,.0f}\n"
-    message += f"30% : {auction_dic['30%']:,.0f}\n"
-    message += f"50% : {auction_dic['50%']:,.0f}\n"
-    message += f"100%: {auction_dic['100%']:,.0f}\n"
+    message += f"**==할인 쿠폰 사용시 수익==**\n"
+    message += f"10% : {actual_received_amount['10%']:,.0f}\n"
+    message += f"20% : {actual_received_amount['20%']:,.0f}\n"
+    message += f"30% : {actual_received_amount['30%']:,.0f}\n"
+    message += f"50% : {actual_received_amount['50%']:,.0f}\n"
+    message += f"100%: {actual_received_amount['100%']:,.0f}\n"
     if max_profit_value > 0 :
-        message += f"**💡최고 효율을 내는 수수료할인쿠폰은 [{max_profit_key}할인쿠폰] 입니다.💡**"
+        message += f"\n**💡최고 효율을 내는 수수료할인쿠폰은 [{max_profit_key}할인쿠폰] 입니다.💡**\n\n"
     else :
-        message += f"**💡경매장 수수료할인쿠폰을 사용하지 않는 것이 좋습니다.💡**"
+        message += f"\n**💡경매장 수수료할인쿠폰을 사용하지 않는 것이 좋습니다.💡**\n\n"
+    
+    message += f"```"
+    message += f"==할인 쿠폰 금액==\n"
+    message += f" 10% : {coupon_10:,}\n"
+    message += f" 20% : {coupon_20:,}\n"
+    message += f" 30% : {coupon_30:,}\n"
+    message += f" 50% : {coupon_50:,}\n"
+    message += f"100% : {coupon_100:,}\n"
+    message += f"*updated by {update_date}*"
+    # message += f"\n\n!경매장쿠폰최신화 1000 2000 3000 4000 5000"
+    
+    message += f"```"
+
+
     await ctx.send(message)
 
 def calculate_auction(price, premium):
@@ -482,28 +493,48 @@ def calculate_auction(price, premium):
     
     return result, sales_commission, sales_commission_percent, discount_10, discount_20, discount_30, discount_50, discount_100
 
-def coupon_price():
-  return update_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100
-
-update_date = "2024-03-01"
-coupon_10 = 11500
-coupon_20 = 65000
-coupon_30 = 390000
-coupon_50 = 20000000
-coupon_100 = 29230000
-
-#쿠폰값 업데이트
-def modify_coupon_price(modify_10,modify_20,modify_30,modify_50,modify_100):
-    global update_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100
-    update_date = date.today()
+def load_coupon_prices_from_yaml():
+    global update_date, coupon_10, coupon_20, coupon_30, coupon_50, coupon_100
+    try:
+        with open(get_datafile_path('Discount_Ticket_Price.yaml'), 'r') as file:
+            coupon_data = yaml.safe_load(file)
+            update_date = coupon_data['update_date']
+            coupon_10 = coupon_data['coupon_10']
+            coupon_20 = coupon_data['coupon_20']
+            coupon_30 = coupon_data['coupon_30']
+            coupon_50 = coupon_data['coupon_50']
+            coupon_100 = coupon_data['coupon_100']
+    except FileNotFoundError:
+        update_date = date.today().isoformat()
+        coupon_10 = 0
+        coupon_20 = 0
+        coupon_30 = 0
+        coupon_50 = 0
+        coupon_100 = 0
+        save_coupon_prices_to_yaml()
+        
+# 쿠폰값 업데이트 및 YAML 저장
+def modify_coupon_price(modify_10, modify_20, modify_30, modify_50, modify_100):
+    global update_date, coupon_10, coupon_20, coupon_30, coupon_50, coupon_100
+    update_date = date.today().isoformat()
     coupon_10 = modify_10
     coupon_20 = modify_20
     coupon_30 = modify_30
     coupon_50 = modify_50
     coupon_100 = modify_100
-    return update_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100
+    save_coupon_prices_to_yaml()
+    return update_date, coupon_10, coupon_20, coupon_30, coupon_50, coupon_100
 
 
-
-
+def save_coupon_prices_to_yaml():
+    coupon_data = {
+        'update_date': update_date,
+        'coupon_10': coupon_10,
+        'coupon_20': coupon_20,
+        'coupon_30': coupon_30,
+        'coupon_50': coupon_50,
+        'coupon_100': coupon_100
+    }
+    with open(get_datafile_path('Discount_Ticket_Price.yaml'), 'w') as file:
+        yaml.safe_dump(coupon_data, file)
 bot.run(Token)
