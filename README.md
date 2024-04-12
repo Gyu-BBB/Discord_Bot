@@ -28,7 +28,7 @@ Mabinogi_Helper_Bot
 - 원하는 지염의 색을 찾아줍니다. 
 
 (예시: !지염 0,0,0 or !지염 코즈믹시암)  
-![alt text](image.png)
+![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/aee5cd6b-0746-4720-9d0f-6b8239848328)
 
 ## !글렌
 - 글렌공략을 나타내줍니다. 
@@ -57,10 +57,10 @@ Mabinogi_Helper_Bot
 - 경매장 판매금액을 예상해줍니다. 
 
 (예시: !경매장 10000000 y, !경매장 10000000 n)
-![alt text](image.png)
+![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/3c0432ed-5bf9-4d2d-a345-8ee1094a472f)
 
 ## !어드
 - 오늘의 어드벤스드 아이템을 알려줍니다. 
 
 (예시: !어드, !어드전체, !전체어드)
-![alt text](image.png)
+![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/37faa05c-8465-4c75-b1f1-121c0bd1dc69)
