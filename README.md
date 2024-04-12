@@ -60,7 +60,7 @@ Mabinogi_Helper_Bot
 ![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/3c0432ed-5bf9-4d2d-a345-8ee1094a472f)
 
 ## !어드
-- 오늘의 어드벤스드 아이템을 알려줍니다. 
+- 오늘의 어드벤스드 아이템을 알려줍니다.  
 
-(예시: !어드, !어드전체, !전체어드)
+(예시: !어드, !어드전체, !전체어드)  
 ![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/37faa05c-8465-4c75-b1f1-121c0bd1dc69)
