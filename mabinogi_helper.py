@@ -394,15 +394,16 @@ async def modify_coupon_command(ctx, price_10:int=None, price_20:int=None, price
         message += "예) !경매장쿠폰최신화 11500 65000 390000 19999999 29230000"
         await ctx.send(message)
     pdate_date,coupon_10,coupon_20,coupon_30,coupon_50,coupon_100 = modify_coupon_price(price_10, price_20, price_30, price_50, price_100)
-    # message = f"====================\n"
+    
     message = f" 쿠폰 가격 갱신\n"
+    message += f"```"
     message += f" 10% 할인쿠폰 : {coupon_10:,}\n"
     message += f" 20% 할인쿠폰 : {coupon_20:,}\n"
     message += f" 30% 할인쿠폰 : {coupon_30:,}\n"
     message += f" 50% 할인쿠폰 : {coupon_50:,}\n"
     message += f"100% 할인쿠폰 : {coupon_100:,}\n"
     message += f"*updated by {update_date}*\n\n"
-    # message += f"====================\n"
+    message += f"```"
     message += f"갱신 완료되었습니다."
     await ctx.send(message)
 
@@ -428,11 +429,11 @@ async def auction_command(ctx, price:int=None, premium:str=None):
                    '50%':discount_50-coupon_50, 
                    '100%':discount_100-coupon_100}
                    
-    actual_received_amount = {'10%':result-(discount_10+coupon_10),
-                              '20%':result-(discount_20+coupon_20), 
-                              '30%':result-(discount_30+coupon_30),
-                              '50%':result-(discount_50+coupon_50), 
-                              '100%':result-(discount_100+coupon_100)}
+    actual_received_amount = {'10%':result+(discount_10-coupon_10),
+                              '20%':result+(discount_20-coupon_20), 
+                              '30%':result+(discount_30-coupon_30),
+                              '50%':result+(discount_50-coupon_50), 
+                              '100%':result+(discount_100-coupon_100)}
 
     
     #최고 효율을 내는 값 찾기
