@@ -10,7 +10,7 @@ import math
 from discord import File
 from Token import Token
 from datetime import date
-
+from PIL import Image
 # Define intents
 intents = discord.Intents.default()
 # intents.guild_voice_states = True  # 음성 상태 변경 인텐트 활성화
@@ -319,14 +319,20 @@ def find_nearest_color(rgb_values):
 async def send_color_image(ctx, rgb):
     """해당 RGB 값을 가진 이미지 파일을 디스코드 채널에 전송합니다."""
     # 이미지 파일 이름을 "r,g,b.png" 형식으로 생성
-    image_file_name = f"{rgb[0]},{rgb[1]},{rgb[2]}.png"
+    # image_file_name = f"{rgb[0]},{rgb[1]},{rgb[2]}.png"
     # get_datafile_path 함수를 사용해 파일의 절대 경로를 구성
-    file_path = get_datafile_path(os.path.join('colors', image_file_name))
-    
-    if os.path.exists(file_path):
-        await ctx.send(file=File(file_path))
-    else:
-        await ctx.send("해당 RGB 값에 맞는 이미지 파일이 없습니다.")
+    # file_path = get_datafile_path(os.path.join('colors', image_file_name))
+        # if os.path.exists(file_path):
+    #     await ctx.send(file=File(file_path))
+    # else:
+    #     await ctx.send("해당 RGB 값에 맞는 이미지 파일이 없습니다.")
+
+    #이미지 파일 생성 및 저장
+    img = Image.new('RGB',(32,32), (rgb[0],rgb[1],rgb[2]))
+    img.save('color_image.png')
+    await ctx.send(file=File('color_image.png'))
+    #사용된 이미지 파일 삭제
+    os.remove('color_image.png')
 
 # 색상 이름으로 RGB 값을 찾는 함수
 def find_rgb_by_name(color_name):
