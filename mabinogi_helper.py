@@ -587,4 +587,25 @@ async def 전체어드(ctx):
         formatted_message = "```" + "\n\n".join(message) + "```"
         await ctx.send(formatted_message)
 
+# 버프 디버프 확인
+@bot.command()
+async def 디버프(ctx):
+    file_path = get_datafile_path('buffNdebuff.png')
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as f:
+            file = discord.File(f)
+            await ctx.send(file=file)
+    else:
+        await ctx.send("파일을 찾을 수 없습니다.")
+
+@bot.command()
+async def 버프(ctx):
+    file_path = get_datafile_path('buffNdebuff.png')
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as f:
+            file = discord.File(f)
+            await ctx.send(file=file)
+    else:
+        await ctx.send("파일을 찾을 수 없습니다.")
+        
 bot.run(Token)

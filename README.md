@@ -64,3 +64,10 @@ Mabinogi_Helper_Bot
 
 (예시: !어드, !어드전체, !전체어드)  
 ![image](https://github.com/Gyu-BBB/Discord_Bot/assets/133697595/37faa05c-8465-4c75-b1f1-121c0bd1dc69)
+
+
+## !버프, !디버프  
+- 유저가 사용하는 버프와 디버프의 종류를 알려줍니다.  
+
+![버프와 디버프](imagefile/buffNdebuff.png)
+
