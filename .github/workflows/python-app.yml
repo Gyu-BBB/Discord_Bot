@@ -30,6 +30,7 @@ jobs:
         pip install discord
         pip install Pillow
         pip install pytz
+        pip install pyyaml
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
