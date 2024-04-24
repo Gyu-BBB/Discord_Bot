@@ -40,4 +40,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with mabinogi_helper
       run: |
-        python mabinogi_helper.py
+        from Token import Token
+        python mabinogi_helper.py ${{secrets.DISCORD_BOT_TOKEN}}
