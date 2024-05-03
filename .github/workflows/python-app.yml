@@ -40,7 +40,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Create Token.py
       run: |
-        echo "'${{secrets.DISCORD_BOT_TOKEN}}'" > Token.py
+        echo "${{secrets.DISCORD_BOT_TOKEN}}" > Token.py
     - name: Test with mabinogi_helper
       run: |
         python mabinogi_helper.py
